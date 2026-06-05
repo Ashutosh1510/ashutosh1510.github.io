@@ -241,6 +241,25 @@ document.querySelectorAll('.tilt-card').forEach(card=>{
   card.addEventListener('mouseleave',()=>{card.style.transform=''});
 });
 
+/* PROJECT PREVIEW VIDEOS */
+document.querySelectorAll('.pcard').forEach(card=>{
+  const video=card.querySelector('video');
+  if(!video) return;
+
+  const play=()=>{
+    video.play().catch(()=>{});
+  };
+  const pause=()=>{
+    video.pause();
+    video.currentTime=0;
+  };
+
+  card.addEventListener('mouseenter',play);
+  card.addEventListener('focusin',play);
+  card.addEventListener('mouseleave',pause);
+  card.addEventListener('focusout',pause);
+});
+
 /* ══════════════════════════════════════
    MAGNETIC BUTTONS
 ══════════════════════════════════════ */
