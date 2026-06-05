@@ -13,6 +13,7 @@
 
 <div id="CUR"></div><div id="CUR_F"></div>
 <div id="pbar"></div>
+<canvas id="bg-canvas"></canvas>
 
 <nav class="snav" aria-label="Section navigation">
   <a href="#s-hero" class="si act" data-s="s-hero"><span class="sl">Home</span><span class="sd"></span></a>
@@ -240,9 +241,15 @@
       </article>
       <article class="pcard tilt-card reveal rs" style="transition-delay:.4s">
         <div class="pcard-n">04</div>
-        <div class="project-preview">
-          <img src="assets/img/classical-cv-preview.jpg" alt="Classical computer vision result collage showing hybrid images, feature tracking, epipolar geometry, and SLIC segmentation" loading="lazy"/>
-          <span class="preview-chip">Result collage</span>
+        <div class="project-preview cv-preview">
+          <div class="cv-slideshow" aria-hidden="true">
+            <img class="cv-slide" src="assets/img/classical-cv-hybrid.jpg" alt="" loading="lazy"/>
+            <img class="cv-slide" src="assets/img/classical-cv-tracking.jpg" alt="" loading="lazy"/>
+            <img class="cv-slide" src="assets/img/classical-cv-epipolar.jpg" alt="" loading="lazy"/>
+            <img class="cv-slide" src="assets/img/classical-cv-slic.jpg" alt="" loading="lazy"/>
+          </div>
+          <span class="sr-only">Classical computer vision results: hybrid images, feature tracking, epipolar geometry, and SLIC segmentation.</span>
+          <span class="preview-chip">Hover slideshow</span>
         </div>
         <div class="pcard-type">Classical Vision</div>
         <h3 class="pcard-title">Classical Computer Vision Techniques</h3>

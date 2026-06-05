@@ -7,7 +7,9 @@
   --fd:'Clash Display',sans-serif;--fb:'Cabinet Grotesk',sans-serif;--fm:'JetBrains Mono',monospace;
 }
 html{scroll-behavior:smooth;overflow-x:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);cursor:none;overflow-x:hidden;line-height:1.7}
+body{background:linear-gradient(135deg,#030509 0%,#07101a 44%,#04060d 100%);color:var(--text);font-family:var(--fb);cursor:none;overflow-x:hidden;line-height:1.7}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 /* CURSOR */
 #CUR{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--c1);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .2s,height .2s,background .2s}
@@ -18,14 +20,20 @@ body:has(a:hover,.tilt-card:hover) #CUR_F{width:50px;height:50px;border-color:rg
 /* PROGRESS */
 #pbar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));z-index:1000;pointer-events:none;transition:width .06s linear}
 
+/* BACKGROUND FIELD */
+#bg-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;opacity:.42;mix-blend-mode:screen}
+
 /* GRAIN */
 body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.3;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
 
 /* GRID */
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(0,255,209,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,209,.022) 1px,transparent 1px);
-  background-size:64px 64px}
+  background-image:
+    linear-gradient(120deg,rgba(48,245,200,.04),transparent 34%,rgba(106,168,255,.035) 68%,transparent),
+    linear-gradient(rgba(48,245,200,.024) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(106,168,255,.022) 1px,transparent 1px);
+  background-size:100% 100%,64px 64px,64px 64px}
 
 /* TOP NAV */
 #tnav{position:fixed;top:0;left:0;right:0;z-index:500;padding:18px 56px;display:flex;justify-content:space-between;align-items:center;transition:background .4s,border-color .4s}
@@ -202,6 +210,18 @@ section{position:relative;z-index:10;padding:130px 56px}
 .pcard:hover .project-preview img,.pcard:hover .project-preview video{transform:scale(1.07);filter:saturate(1.08) contrast(1.12)}
 .project-preview::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,7,11,0) 35%,rgba(5,7,11,.68));pointer-events:none}
 .preview-chip{position:absolute;left:12px;bottom:12px;z-index:1;font-family:var(--fm);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#03110e;background:rgba(48,245,200,.88);padding:6px 9px;border-radius:4px}
+.cv-preview{background:#05070b}
+.cv-slideshow{position:absolute;inset:0}
+.cv-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.02);transition:opacity .35s ease}
+.cv-slide:first-child{opacity:1}
+.pcard:hover .cv-slide,.pcard:focus-within .cv-slide{animation:cvSlide 8s infinite}
+.pcard:hover .cv-slide:nth-child(2),.pcard:focus-within .cv-slide:nth-child(2){animation-delay:2s}
+.pcard:hover .cv-slide:nth-child(3),.pcard:focus-within .cv-slide:nth-child(3){animation-delay:4s}
+.pcard:hover .cv-slide:nth-child(4),.pcard:focus-within .cv-slide:nth-child(4){animation-delay:6s}
+@keyframes cvSlide{
+  0%,22%{opacity:1;transform:scale(1.05)}
+  27%,100%{opacity:0;transform:scale(1.02)}
+}
 .pcard-type{font-family:var(--fm);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--c2);margin-bottom:10px}
 .pcard-title{font-family:var(--fd);font-size:24px;font-weight:600;margin-bottom:14px;line-height:1.12;padding-right:58px}
 .pcard-desc{font-size:13.5px;color:var(--dim);line-height:1.78;margin-bottom:20px}

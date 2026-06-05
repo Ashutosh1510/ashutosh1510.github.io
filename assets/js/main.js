@@ -168,6 +168,81 @@ function createColorBends(canvas, opts) {
 }
 
 // — Hero ColorBends: warm pink/violet/teal, low opacity via CSS
+function createBackgroundField(canvas) {
+  if (!canvas || !window.THREE) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 20);
+  camera.position.z = 5;
+
+  const count = window.innerWidth < 700 ? 80 : 150;
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 8;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 5;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 3;
+  }
+
+  const pointGeo = new THREE.BufferGeometry();
+  pointGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const points = new THREE.Points(pointGeo, new THREE.PointsMaterial({
+    color: 0x30f5c8,
+    size: 0.018,
+    transparent: true,
+    opacity: 0.62
+  }));
+  scene.add(points);
+
+  const linePositions = [];
+  for (let i = 0; i < count - 1; i += 3) {
+    linePositions.push(
+      positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2],
+      positions[(i + 1) * 3], positions[(i + 1) * 3 + 1], positions[(i + 1) * 3 + 2]
+    );
+  }
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+  const lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({
+    color: 0x6aa8ff,
+    transparent: true,
+    opacity: 0.08
+  }));
+  scene.add(lines);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setClearColor(0x000000, 0);
+
+  function resize() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let tx = 0, ty = 0;
+  window.addEventListener('pointermove', e => {
+    tx = (e.clientX / window.innerWidth - 0.5) * 0.18;
+    ty = (e.clientY / window.innerHeight - 0.5) * 0.12;
+  }, { passive: true });
+
+  function render(t = 0) {
+    points.rotation.y = t * 0.000035 + tx;
+    lines.rotation.y = points.rotation.y;
+    points.rotation.x = ty;
+    lines.rotation.x = ty;
+    renderer.render(scene, camera);
+    if (!reduceMotion) requestAnimationFrame(render);
+  }
+  render();
+}
+
+createBackgroundField(document.getElementById('bg-canvas'));
+
 createColorBends(document.getElementById('cb-canvas'), {
   colors: ['#ff5c7a','#8a5cff','#00ffd1'],
   rotation: 0, speed: 0.18, scale: 1, frequency: 1,
