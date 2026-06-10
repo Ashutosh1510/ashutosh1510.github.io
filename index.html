@@ -4,12 +4,24 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="description" content="Ashutosh Reddy Atimyala - AI/ML Engineer specializing in GenAI, fraud detection, MLOps, and real-time data systems."/>
+<meta name="theme-color" content="#05070b"/>
 <title>Ashutosh Reddy Atimyala - AI/ML Engineer</title>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=cabinet-grotesk@300,400,500,700,800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+
+<!-- BOOT LOADER -->
+<div id="loader" aria-hidden="true">
+  <div class="ld-inner">
+    <div class="ld-term" id="ld-term"></div>
+    <div class="ld-track"><div class="ld-bar" id="ld-bar"></div></div>
+    <div class="ld-meta"><span>AR-PORTFOLIO // v2.6</span><span id="ld-pct">0%</span></div>
+  </div>
+</div>
 
 <div id="CUR"></div><div id="CUR_F"></div>
 <div id="pbar"></div>
@@ -25,7 +37,7 @@
 </nav>
 
 <nav id="tnav" aria-label="Primary navigation">
-  <a href="#s-hero" class="nl">AR.</a>
+  <a href="#s-hero" class="nl">AR<span class="nl-dot">.</span></a>
   <ul class="nls">
     <li><a href="#s-about">Skills</a></li>
     <li><a href="#s-exp">Experience</a></li>
@@ -34,7 +46,24 @@
     <li><a href="#s-contact">Contact</a></li>
     <li><a href="assets/docs/Ashutosh_Reddy_Atimyala_Resume.docx" download>Resume</a></li>
   </ul>
+  <button id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="m-menu">
+    <span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div id="m-menu" aria-hidden="true">
+  <div class="mm-links">
+    <a href="#s-hero" style="--i:0">Home</a>
+    <a href="#s-about" style="--i:1">Skills</a>
+    <a href="#s-exp" style="--i:2">Experience</a>
+    <a href="#s-proj" style="--i:3">Projects</a>
+    <a href="#s-edu" style="--i:4">Education</a>
+    <a href="#s-contact" style="--i:5">Contact</a>
+    <a href="assets/docs/Ashutosh_Reddy_Atimyala_Resume.docx" download style="--i:6" class="mm-resume">Download Resume</a>
+  </div>
+  <div class="mm-foot">ashutoshreddy26@gmail.com</div>
+</div>
 
 <section id="s-hero">
   <canvas id="cb-canvas"></canvas>
@@ -45,13 +74,13 @@
       <span class="status-text">Open to ML, GenAI, and MLOps roles | Philadelphia | 5+ years</span>
     </div>
 
-    <div class="hero-name">
-      <div class="ln"><span>ASHUTOSH</span></div>
-      <div class="ln"><span>REDDY</span></div>
-    </div>
+    <h1 class="hero-name">
+      <div class="ln"><span data-scramble>ASHUTOSH</span></div>
+      <div class="ln"><span data-scramble>REDDY</span></div>
+    </h1>
 
     <div class="hero-tagline">
-      <span>AI/ML Engineer | GenAI | Fraud Detection | Real-Time ML</span>
+      <span>AI/ML Engineer&nbsp;<span class="tg-sep">//</span>&nbsp;<span id="role-rotator" class="role-rot">GenAI Systems</span></span>
     </div>
 
     <p class="hero-bio">AI and Machine Learning Engineer building production-scale ML, GenAI, and real-time data systems across banking, SaaS, and enterprise platforms. Recent work spans fraud detection, transaction risk scoring, RAG pipelines, vector search, inference APIs, and monitoring frameworks for large-scale workloads.</p>
@@ -101,11 +130,23 @@
   </div>
 </section>
 
+<!-- TECH TICKER -->
+<div class="marquee" aria-hidden="true">
+  <div class="mq-track">
+    <div class="mq-set">
+      <span>Python</span><i>◆</i><span>LangChain</span><i>◆</i><span>LangGraph</span><i>◆</i><span>RAG</span><i>◆</i><span>FAISS</span><i>◆</i><span>Kafka</span><i>◆</i><span>Spark Streaming</span><i>◆</i><span>TensorFlow</span><i>◆</i><span>PyTorch</span><i>◆</i><span>XGBoost</span><i>◆</i><span>MLflow</span><i>◆</i><span>Docker</span><i>◆</i><span>Kubernetes</span><i>◆</i><span>AWS</span><i>◆</i><span>SageMaker</span><i>◆</i><span>Snowflake</span><i>◆</i><span>Prometheus</span><i>◆</i><span>Grafana</span><i>◆</i>
+    </div>
+    <div class="mq-set">
+      <span>Python</span><i>◆</i><span>LangChain</span><i>◆</i><span>LangGraph</span><i>◆</i><span>RAG</span><i>◆</i><span>FAISS</span><i>◆</i><span>Kafka</span><i>◆</i><span>Spark Streaming</span><i>◆</i><span>TensorFlow</span><i>◆</i><span>PyTorch</span><i>◆</i><span>XGBoost</span><i>◆</i><span>MLflow</span><i>◆</i><span>Docker</span><i>◆</i><span>Kubernetes</span><i>◆</i><span>AWS</span><i>◆</i><span>SageMaker</span><i>◆</i><span>Snowflake</span><i>◆</i><span>Prometheus</span><i>◆</i><span>Grafana</span><i>◆</i>
+    </div>
+  </div>
+</div>
+
 <section id="s-about">
   <div class="about-layout">
     <div>
       <div class="s-label reveal rl">// 01 - Capabilities</div>
-      <h2 class="big-head reveal rl" style="transition-delay:.05s">Built to<br><span class="grad-text">Ship AI</span></h2>
+      <h2 class="big-head reveal rl" style="transition-delay:.05s">Built to<br><span class="grad-text" data-scramble>Ship AI</span></h2>
       <p class="body-p reveal rl" style="transition-delay:.15s">Production-focused AI/ML engineer with hands-on experience across model training, inference APIs, vector search pipelines, real-time streaming, cloud deployments, and observability. I translate messy enterprise data into reliable systems that support fraud, risk, customer analytics, and knowledge retrieval workflows.</p>
       <p class="body-p reveal rl" style="transition-delay:.22s">My current stack includes Python, SQL, PySpark, Spark Structured Streaming, Kafka, TensorFlow, PyTorch, XGBoost, LangChain, LangGraph, FAISS, OpenAI APIs, Docker, Kubernetes, MLflow, AWS, Snowflake, PostgreSQL, Prometheus, Grafana, SHAP, and LIME.</p>
       <div class="skill-cloud reveal rl" style="transition-delay:.3s">
@@ -121,11 +162,11 @@
       </div>
     </div>
     <div class="sk-list reveal rr" style="transition-delay:.1s">
-      <div class="sk-item tilt-card"><div class="sk-cat">Machine Learning</div><div class="sk-items">Predictive modeling, anomaly detection, churn prediction, classification, feature engineering, model evaluation, hyperparameter tuning, XGBoost, TensorFlow, PyTorch, Keras, Scikit-learn</div></div>
-      <div class="sk-item tilt-card"><div class="sk-cat">Generative AI & NLP</div><div class="sk-items">LangChain, LangGraph, LLMs, RAG, FAISS, prompt engineering, Hugging Face Transformers, OpenAI APIs, BERT, spaCy, NLTK, NER, sentiment analysis</div></div>
-      <div class="sk-item tilt-card"><div class="sk-cat">Data Engineering</div><div class="sk-items">Apache Spark, Spark Structured Streaming, Kafka, Airflow, Hadoop, Hive, ETL pipelines, batch processing, real-time processing, Pandas, NumPy</div></div>
-      <div class="sk-item tilt-card"><div class="sk-cat">MLOps & Deployment</div><div class="sk-items">MLflow, Docker, Kubernetes, FastAPI, Flask, Jenkins, GitHub Actions, CI/CD pipelines, model monitoring, Prometheus, Grafana</div></div>
-      <div class="sk-item tilt-card"><div class="sk-cat">Cloud & Analytics</div><div class="sk-items">AWS EC2, S3, Lambda, SageMaker, Snowflake, PostgreSQL, MySQL, SQL optimization, Power BI, Tableau, SHAP, LIME, financial services analytics</div></div>
+      <div class="sk-item tilt-card spot"><div class="sk-cat">Machine Learning</div><div class="sk-items">Predictive modeling, anomaly detection, churn prediction, classification, feature engineering, model evaluation, hyperparameter tuning, XGBoost, TensorFlow, PyTorch, Keras, Scikit-learn</div></div>
+      <div class="sk-item tilt-card spot"><div class="sk-cat">Generative AI & NLP</div><div class="sk-items">LangChain, LangGraph, LLMs, RAG, FAISS, prompt engineering, Hugging Face Transformers, OpenAI APIs, BERT, spaCy, NLTK, NER, sentiment analysis</div></div>
+      <div class="sk-item tilt-card spot"><div class="sk-cat">Data Engineering</div><div class="sk-items">Apache Spark, Spark Structured Streaming, Kafka, Airflow, Hadoop, Hive, ETL pipelines, batch processing, real-time processing, Pandas, NumPy</div></div>
+      <div class="sk-item tilt-card spot"><div class="sk-cat">MLOps & Deployment</div><div class="sk-items">MLflow, Docker, Kubernetes, FastAPI, Flask, Jenkins, GitHub Actions, CI/CD pipelines, model monitoring, Prometheus, Grafana</div></div>
+      <div class="sk-item tilt-card spot"><div class="sk-cat">Cloud & Analytics</div><div class="sk-items">AWS EC2, S3, Lambda, SageMaker, Snowflake, PostgreSQL, MySQL, SQL optimization, Power BI, Tableau, SHAP, LIME, financial services analytics</div></div>
     </div>
   </div>
 </section>
@@ -133,9 +174,9 @@
 <section id="s-exp">
   <div class="section-wrap">
     <div class="s-label reveal">// 02 - Track Record</div>
-    <h2 class="big-head reveal" style="transition-delay:.08s">Where I've<br><span class="grad-text">Shipped AI</span></h2>
+    <h2 class="big-head reveal" style="transition-delay:.08s">Where I've<br><span class="grad-text" data-scramble>Shipped AI</span></h2>
     <div class="exp-grid">
-      <div class="exp-card tilt-card reveal rs" style="--card-accent:var(--c1);transition-delay:.1s">
+      <div class="exp-card tilt-card spot reveal rs" style="--card-accent:var(--c1);transition-delay:.1s">
         <div class="exp-num-bg">01</div>
         <div class="exp-period" style="color:var(--c1)">Aug 2023 - Present</div>
         <div class="exp-role">AI/ML Engineer</div>
@@ -149,7 +190,7 @@
         </ul>
         <div class="exp-tags"><span class="etag">Kafka</span><span class="etag">Spark</span><span class="etag">TensorFlow</span><span class="etag">XGBoost</span><span class="etag">LangChain</span><span class="etag">FAISS</span><span class="etag">AWS</span></div>
       </div>
-      <div class="exp-card tilt-card reveal rs" style="--card-accent:var(--c2);transition-delay:.2s">
+      <div class="exp-card tilt-card spot reveal rs" style="--card-accent:var(--c2);transition-delay:.2s">
         <div class="exp-num-bg">02</div>
         <div class="exp-period" style="color:var(--c2)">Feb 2020 - Jul 2021</div>
         <div class="exp-role">Machine Learning Engineer</div>
@@ -163,7 +204,7 @@
         </ul>
         <div class="exp-tags"><span class="etag">Scikit-learn</span><span class="etag">XGBoost</span><span class="etag">Spark</span><span class="etag">Hive</span><span class="etag">Airflow</span><span class="etag">BERT</span><span class="etag">AWS</span></div>
       </div>
-      <div class="exp-card tilt-card reveal rs" style="--card-accent:var(--c3);transition-delay:.3s">
+      <div class="exp-card tilt-card spot reveal rs" style="--card-accent:var(--c3);transition-delay:.3s">
         <div class="exp-num-bg">03</div>
         <div class="exp-period" style="color:var(--c3)">Jan 2019 - Jan 2020</div>
         <div class="exp-role">Data Analyst</div>
@@ -184,9 +225,9 @@
 <section id="s-proj">
   <div class="section-wrap">
     <div class="s-label reveal">// 03 - Research & Build</div>
-    <h2 class="big-head reveal" style="transition-delay:.08s">Projects With<br><span class="grad-text">Live Previews</span></h2>
+    <h2 class="big-head reveal" style="transition-delay:.08s">Projects With<br><span class="grad-text" data-scramble>Live Previews</span></h2>
     <div class="proj-grid">
-      <article class="pcard tilt-card reveal rs" style="transition-delay:.1s">
+      <article class="pcard tilt-card spot reveal rs" style="transition-delay:.1s">
         <div class="pcard-n">01</div>
         <div class="project-preview">
           <img src="https://raw.githubusercontent.com/Ashutosh1510/Visual_Transformers_Mono_Odometry/main/Final%20project%20results/520.png" alt="Depth estimation output from the visual odometry project" loading="lazy"/>
@@ -203,7 +244,7 @@
         </div>
         <div class="pcard-bar"></div>
       </article>
-      <article class="pcard tilt-card reveal rs" style="transition-delay:.2s">
+      <article class="pcard tilt-card spot reveal rs" style="transition-delay:.2s">
         <div class="pcard-n">02</div>
         <div class="project-preview">
           <img src="https://raw.githubusercontent.com/Ashutosh1510/3d_object_reconstruction_tracking/main/results/5.png" alt="3D object reconstruction project result" loading="lazy"/>
@@ -220,7 +261,7 @@
         </div>
         <div class="pcard-bar"></div>
       </article>
-      <article class="pcard tilt-card reveal rs" style="transition-delay:.3s">
+      <article class="pcard tilt-card spot reveal rs" style="transition-delay:.3s">
         <div class="pcard-n">03</div>
         <div class="project-preview has-video">
           <video muted loop playsinline preload="metadata" poster="https://opengraph.githubassets.com/1/Ashutosh1510/Curved_lanes_detection">
@@ -239,7 +280,7 @@
         </div>
         <div class="pcard-bar"></div>
       </article>
-      <article class="pcard tilt-card reveal rs" style="transition-delay:.4s">
+      <article class="pcard tilt-card spot reveal rs" style="transition-delay:.4s">
         <div class="pcard-n">04</div>
         <div class="project-preview cv-preview">
           <div class="cv-slideshow" aria-hidden="true">
@@ -269,15 +310,15 @@
 <section id="s-edu">
   <div class="section-wrap">
     <div class="s-label reveal">// 04 - Academic Foundation</div>
-    <h2 class="big-head reveal" style="transition-delay:.08s">Education &<br><span class="grad-text">Credentials</span></h2>
+    <h2 class="big-head reveal" style="transition-delay:.08s">Education &<br><span class="grad-text" data-scramble>Credentials</span></h2>
     <div class="edu-grid">
-      <div class="edu-card tilt-card reveal rl" style="transition-delay:.12s">
+      <div class="edu-card tilt-card spot reveal rl" style="transition-delay:.12s">
         <div class="edu-yr">Aug 2021 - May 2023</div>
         <div class="edu-deg">Master of Engineering</div>
         <div class="edu-field" style="color:var(--c1)">Robotics</div>
         <div class="edu-school">University of Maryland | College Park, MD</div>
       </div>
-      <div class="edu-card tilt-card reveal rr" style="transition-delay:.22s">
+      <div class="edu-card tilt-card spot reveal rr" style="transition-delay:.22s">
         <div class="edu-yr">Jul 2016 - Jun 2020</div>
         <div class="edu-deg">Bachelor of Technology</div>
         <div class="edu-field" style="color:var(--c2)">Mechatronics Engineering</div>
@@ -307,7 +348,7 @@
   <canvas id="cb-contact"></canvas>
   <div class="contact-wrap">
     <div class="s-label reveal">// 05 - Let's Build Together</div>
-    <h2 class="ch2 reveal" style="transition-delay:.08s">Start a<br><span class="grad-text">Conversation</span></h2>
+    <h2 class="ch2 reveal" style="transition-delay:.08s">Start a<br><span class="grad-text" data-scramble>Conversation</span></h2>
     <p class="contact-sub reveal" style="transition-delay:.2s">Open to ML engineering, GenAI, and MLOps roles where production systems, real-time data, and measurable business outcomes matter.</p>
     <a href="mailto:ashutoshreddy26@gmail.com" class="c-email reveal" style="transition-delay:.3s">ashutoshreddy26@gmail.com</a>
     <div class="c-links reveal" style="transition-delay:.4s">
@@ -323,6 +364,8 @@
   <span>Ashutosh Reddy Atimyala | AI/ML Engineer</span>
   <span>Philadelphia, PA | 2026</span>
 </footer>
+
+<button id="totop" aria-label="Back to top">↑</button>
 
 <script src="assets/js/main.js"></script>
 </body>

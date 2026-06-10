@@ -1,6 +1,179 @@
 /* ══════════════════════════════════════
+   AR PORTFOLIO — main.js (v2.6)
+   Lenis smooth scroll · boot loader · scramble type
+   ColorBends WebGL · spotlight cards · perf guards
+══════════════════════════════════════ */
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FINE_POINTER = window.matchMedia('(pointer: fine)').matches;
+
+/* ══════════════════════════════════════
+   LENIS SMOOTH SCROLL
+══════════════════════════════════════ */
+let lenis = null;
+if (window.Lenis && !RM) {
+  lenis = new Lenis({
+    duration: 1.15,
+    easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+    touchMultiplier: 1.6
+  });
+  (function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  })(performance.now());
+}
+
+function scrollToTarget(target) {
+  if (lenis) lenis.scrollTo(target, { offset: -70, duration: 1.3 });
+  else {
+    const el = typeof target === 'string' ? document.querySelector(target) : target;
+    if (el) el.scrollIntoView({ behavior: RM ? 'auto' : 'smooth' });
+    else if (target === 0) window.scrollTo({ top: 0, behavior: RM ? 'auto' : 'smooth' });
+  }
+}
+
+// Anchor links → smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id.length > 1 && document.querySelector(id)) {
+      e.preventDefault();
+      closeMenu();
+      scrollToTarget(id);
+      history.replaceState(null, '', id);
+    }
+  });
+});
+
+/* ══════════════════════════════════════
+   SCRAMBLE / DECODE TYPE
+══════════════════════════════════════ */
+const SCRAMBLE_CHARS = '!<>-_\\/[]{}=+*^?#01';
+let scrambleSeq = 0;
+function scramble(el, duration = 850) {
+  const final = el.dataset.final || el.textContent;
+  el.dataset.final = final;
+  if (RM) { el.textContent = final; return; }
+  const run = String(++scrambleSeq);
+  el.dataset.scrambleRun = run;
+  clearTimeout(el._scrambleTimer);
+  const len = final.length;
+  const start = performance.now();
+  const finish = () => {
+    if (el.dataset.scrambleRun !== run) return;
+    el.textContent = final;
+    delete el.dataset.scrambleRun;
+  };
+  el._scrambleTimer = setTimeout(finish, duration + 160);
+  (function frame(now) {
+    if (el.dataset.scrambleRun !== run) return;
+    const p = Math.min(1, (now - start) / duration);
+    const cut = Math.floor(p * len);
+    let out = '';
+    for (let i = 0; i < len; i++) {
+      const ch = final[i];
+      out += i < cut || ch === ' ' ? ch : SCRAMBLE_CHARS[(Math.random() * SCRAMBLE_CHARS.length) | 0];
+    }
+    el.textContent = out;
+    if (p < 1) requestAnimationFrame(frame);
+    else finish();
+  })(start);
+}
+
+// Decode section headings as they enter the viewport
+const scrObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      scramble(e.target, 950);
+      scrObs.unobserve(e.target);
+    }
+  });
+}, { threshold: .4 });
+document.querySelectorAll('section:not(#s-hero) [data-scramble]').forEach(el => scrObs.observe(el));
+
+/* ══════════════════════════════════════
+   BOOT LOADER
+══════════════════════════════════════ */
+const loader = document.getElementById('loader');
+// sessionStorage can throw on file:// or with cookies disabled — never let it block the page
+const store = {
+  get(k) { try { return sessionStorage.getItem(k); } catch (_) { return null; } },
+  set(k, v) { try { sessionStorage.setItem(k, v); } catch (_) {} }
+};
+function dismissLoader() {
+  if (document.body.classList.contains('booted')) return;
+  if (loader) loader.classList.add('done');
+  document.body.style.overflow = '';
+  document.body.classList.add('booted');
+  if (lenis) lenis.start();
+}
+// Watchdog: no matter what goes wrong, the loader can never trap the page
+setTimeout(dismissLoader, 4000);
+
+(function boot() {
+  if (!loader) { document.body.classList.add('booted'); return; }
+  const skip = RM || store.get('ar-booted');
+  if (skip) {
+    loader.style.display = 'none';
+    document.body.classList.add('booted');
+    document.querySelectorAll('.hero-name [data-scramble]').forEach((el, i) =>
+      setTimeout(() => scramble(el, 700), i * 140));
+    return;
+  }
+  if (lenis) lenis.stop();
+  document.body.style.overflow = 'hidden';
+
+  const term = document.getElementById('ld-term');
+  const bar = document.getElementById('ld-bar');
+  const pct = document.getElementById('ld-pct');
+  const lines = [
+    '> boot ar-portfolio --env=production',
+    '> loading models ............ <span class="ok">ok</span>',
+    '> mounting vector index ..... <span class="ok">ok</span>',
+    '> warming inference api ..... <span class="ok">ok</span>',
+    '> render'
+  ];
+  let i = 0, progress = 0;
+  const stepTime = 230;
+  const tick = setInterval(() => {
+    if (i < lines.length) {
+      term.innerHTML += lines[i] + '\n';
+      i++;
+    }
+    progress = Math.min(100, Math.round((i / lines.length) * 100));
+    bar.style.width = progress + '%';
+    pct.textContent = progress + '%';
+    if (i >= lines.length) {
+      clearInterval(tick);
+      setTimeout(finish, 320);
+    }
+  }, stepTime);
+
+  function finish() {
+    store.set('ar-booted', '1');
+    dismissLoader();
+    document.querySelectorAll('.hero-name [data-scramble]').forEach((el, j) =>
+      setTimeout(() => scramble(el, 900), 150 + j * 180));
+  }
+})();
+
+/* ══════════════════════════════════════
+   ROLE ROTATOR
+══════════════════════════════════════ */
+(function roleRotator() {
+  const el = document.getElementById('role-rotator');
+  if (!el || RM) return;
+  const roles = ['GenAI Systems', 'Fraud Detection ML', 'Real-Time Pipelines', 'RAG & Vector Search', 'MLOps at Scale'];
+  let idx = 0;
+  setInterval(() => {
+    idx = (idx + 1) % roles.length;
+    el.dataset.final = roles[idx];
+    scramble(el, 600);
+  }, 3200);
+})();
+
+/* ══════════════════════════════════════
    COLOR BENDS — Three.js WebGL shader
-   Direct port of the React component
 ══════════════════════════════════════ */
 const FRAG = `
 
@@ -71,7 +244,20 @@ varying vec2 vUv;
 void main(){vUv=uv;gl_Position=vec4(position,1.0);}
 `;
 
+// Pauses rendering whenever the canvas leaves the viewport or the tab is hidden
+function visibilityGuard(el, onChange) {
+  let inView = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      inView = entries[0].isIntersecting;
+      onChange(inView && !document.hidden);
+    }, { rootMargin: '120px' }).observe(el);
+  }
+  document.addEventListener('visibilitychange', () => onChange(inView && !document.hidden));
+}
+
 function createColorBends(canvas, opts) {
+  if (!canvas || !window.THREE) return;
   const {
     colors = ['#ff5c7a','#8a5cff','#00ffd1'],
     rotation = 0, speed = 0.2, scale = 1,
@@ -148,26 +334,32 @@ function createColorBends(canvas, opts) {
     const x = ((e.clientX-r.left)/(r.width||1))*2-1;
     const y = -(((e.clientY-r.top)/(r.height||1))*2-1);
     ptrTarget.set(x,y);
-  });
+  }, {passive:true});
+
+  let active = true;
+  visibilityGuard(container, v => { active = v; });
 
   const clock = new THREE.Clock();
   let rotAngle = rotation;
   function loop() {
+    requestAnimationFrame(loop);
+    if (!active) { clock.getDelta(); return; }
     const dt = clock.getDelta();
-    const elapsed = clock.elapsedTime;
-    mat.uniforms.uTime.value = elapsed;
+    mat.uniforms.uTime.value = clock.elapsedTime;
     rotAngle += autoRotate * dt;
     const rad = (rotAngle * Math.PI) / 180;
     mat.uniforms.uRot.value.set(Math.cos(rad), Math.sin(rad));
     ptrCurrent.lerp(ptrTarget, Math.min(1, dt*8));
     mat.uniforms.uPointer.value.copy(ptrCurrent);
     renderer.render(scene, camera);
-    requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
+  if (RM) { renderer.render(scene, camera); }  // single static frame
+  else requestAnimationFrame(loop);
 }
 
-// — Hero ColorBends: warm pink/violet/teal, low opacity via CSS
+/* ══════════════════════════════════════
+   BACKGROUND PARTICLE FIELD
+══════════════════════════════════════ */
 function createBackgroundField(canvas) {
   if (!canvas || !window.THREE) return;
 
@@ -223,26 +415,30 @@ function createBackgroundField(canvas) {
   resize();
   window.addEventListener('resize', resize, { passive: true });
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let tx = 0, ty = 0;
   window.addEventListener('pointermove', e => {
     tx = (e.clientX / window.innerWidth - 0.5) * 0.18;
     ty = (e.clientY / window.innerHeight - 0.5) * 0.12;
   }, { passive: true });
 
+  let active = true;
+  document.addEventListener('visibilitychange', () => { active = !document.hidden; });
+
   function render(t = 0) {
+    if (!RM) requestAnimationFrame(render);
+    if (!active) return;
     points.rotation.y = t * 0.000035 + tx;
     lines.rotation.y = points.rotation.y;
     points.rotation.x = ty;
     lines.rotation.x = ty;
     renderer.render(scene, camera);
-    if (!reduceMotion) requestAnimationFrame(render);
   }
   render();
 }
 
 createBackgroundField(document.getElementById('bg-canvas'));
 
+// — Hero ColorBends: warm pink/violet/teal, low opacity via CSS
 createColorBends(document.getElementById('cb-canvas'), {
   colors: ['#ff5c7a','#8a5cff','#00ffd1'],
   rotation: 0, speed: 0.18, scale: 1, frequency: 1,
@@ -259,28 +455,57 @@ createColorBends(document.getElementById('cb-contact'), {
 });
 
 /* ══════════════════════════════════════
-   CURSOR
+   CURSOR (fine pointers only)
 ══════════════════════════════════════ */
-const CUR=document.getElementById('CUR'),CURF=document.getElementById('CUR_F');
-let mx=0,my=0,fx=0,fy=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;CUR.style.left=mx+'px';CUR.style.top=my+'px'});
-(function animF(){fx+=(mx-fx)*.1;fy+=(my-fy)*.1;CURF.style.left=fx+'px';CURF.style.top=fy+'px';requestAnimationFrame(animF)})();
+const CUR = document.getElementById('CUR'), CURF = document.getElementById('CUR_F');
+if (FINE_POINTER && !RM) {
+  let mx=0,my=0,fx=0,fy=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;CUR.style.left=mx+'px';CUR.style.top=my+'px'},{passive:true});
+  (function animF(){fx+=(mx-fx)*.1;fy+=(my-fy)*.1;CURF.style.left=fx+'px';CURF.style.top=fy+'px';requestAnimationFrame(animF)})();
+}
 
 /* ══════════════════════════════════════
-   SCROLL PROGRESS + NAV BLUR
+   SCROLL PROGRESS + NAV BLUR + TO-TOP
 ══════════════════════════════════════ */
-const pbar=document.getElementById('pbar'),tnav=document.getElementById('tnav');
-window.addEventListener('scroll',()=>{
-  const p=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+const pbar=document.getElementById('pbar'),tnav=document.getElementById('tnav'),totop=document.getElementById('totop');
+function onScroll(){
+  const y = window.scrollY;
+  const p = y/(document.body.scrollHeight-window.innerHeight)*100;
   pbar.style.width=p+'%';
-  tnav.classList.toggle('scrolled',window.scrollY>60);
-},{passive:true});
+  tnav.classList.toggle('scrolled',y>60);
+  totop.classList.toggle('show',y>700);
+}
+if (lenis) lenis.on('scroll', onScroll);
+window.addEventListener('scroll',onScroll,{passive:true});
+totop.addEventListener('click',()=>scrollToTarget(0));
+
+/* ══════════════════════════════════════
+   MOBILE MENU
+══════════════════════════════════════ */
+const menuBtn=document.getElementById('menu-btn'),mMenu=document.getElementById('m-menu');
+function closeMenu(){
+  if(!mMenu.classList.contains('open'))return;
+  mMenu.classList.remove('open');
+  mMenu.setAttribute('aria-hidden','true');
+  menuBtn.setAttribute('aria-expanded','false');
+  document.body.style.overflow='';
+  if(lenis)lenis.start();
+}
+menuBtn.addEventListener('click',()=>{
+  const open=mMenu.classList.toggle('open');
+  mMenu.setAttribute('aria-hidden',String(!open));
+  menuBtn.setAttribute('aria-expanded',String(open));
+  document.body.style.overflow=open?'hidden':'';
+  if(lenis)open?lenis.stop():lenis.start();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
 
 /* ══════════════════════════════════════
    COUNT UP
 ══════════════════════════════════════ */
 function countUp(el){
   const target=+el.dataset.target, suffix=el.dataset.suffix||'';
+  if(RM){el.textContent=target+suffix;return}
   let cur=0;const step=target/60;
   const t=setInterval(()=>{
     cur=Math.min(cur+step,target);
@@ -294,41 +519,45 @@ document.querySelectorAll('.counter').forEach(el=>cntObs.observe(el));
 /* ══════════════════════════════════════
    SCROLL REVEAL
 ══════════════════════════════════════ */
-const revObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.08,rootMargin:'0px 0px -50px 0px'});
+const revObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');revObs.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -50px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
 
-/* ══════════════════════════════════════
-   EXP CARD top-bar
-══════════════════════════════════════ */
-const cObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.15});
+/* EXP CARD top-bar */
+const cObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');cObs.unobserve(e.target)}})},{threshold:.15});
 document.querySelectorAll('.exp-card').forEach(el=>cObs.observe(el));
 
 /* ══════════════════════════════════════
-   TILT CARDS
+   TILT + SPOTLIGHT CARDS
 ══════════════════════════════════════ */
-document.querySelectorAll('.tilt-card').forEach(card=>{
-  card.addEventListener('mousemove',e=>{
-    const r=card.getBoundingClientRect();
-    const x=(e.clientX-r.left)/r.width-.5;
-    const y=(e.clientY-r.top)/r.height-.5;
-    card.style.transform=`perspective(600px) rotateY(${x*12}deg) rotateX(${-y*12}deg) translateZ(6px)`;
+if (FINE_POINTER && !RM) {
+  document.querySelectorAll('.tilt-card').forEach(card=>{
+    card.addEventListener('mouseenter',()=>{
+      // applied on hover only, so the .reveal entrance transition stays intact
+      card.style.transition='transform .12s ease, box-shadow .3s ease';
+    });
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      card.style.transform=`perspective(600px) rotateY(${x*10}deg) rotateX(${-y*10}deg) translateZ(6px)`;
+    },{passive:true});
+    card.addEventListener('mouseleave',()=>{card.style.transform=''});
   });
-  card.addEventListener('mouseleave',()=>{card.style.transform=''});
-});
+  document.querySelectorAll('.spot').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      card.style.setProperty('--mx',(e.clientX-r.left)+'px');
+      card.style.setProperty('--my',(e.clientY-r.top)+'px');
+    },{passive:true});
+  });
+}
 
 /* PROJECT PREVIEW VIDEOS */
 document.querySelectorAll('.pcard').forEach(card=>{
   const video=card.querySelector('video');
   if(!video) return;
-
-  const play=()=>{
-    video.play().catch(()=>{});
-  };
-  const pause=()=>{
-    video.pause();
-    video.currentTime=0;
-  };
-
+  const play=()=>{video.play().catch(()=>{})};
+  const pause=()=>{video.pause();video.currentTime=0};
   card.addEventListener('mouseenter',play);
   card.addEventListener('focusin',play);
   card.addEventListener('mouseleave',pause);
@@ -338,15 +567,17 @@ document.querySelectorAll('.pcard').forEach(card=>{
 /* ══════════════════════════════════════
    MAGNETIC BUTTONS
 ══════════════════════════════════════ */
-document.querySelectorAll('.mag-btn').forEach(btn=>{
-  btn.addEventListener('mousemove',e=>{
-    const r=btn.getBoundingClientRect();
-    const dx=(e.clientX-r.left-r.width/2)*.28;
-    const dy=(e.clientY-r.top-r.height/2)*.28;
-    btn.style.transform=`translate(${dx}px,${dy}px)`;
+if (FINE_POINTER && !RM) {
+  document.querySelectorAll('.mag-btn').forEach(btn=>{
+    btn.addEventListener('mousemove',e=>{
+      const r=btn.getBoundingClientRect();
+      const dx=(e.clientX-r.left-r.width/2)*.28;
+      const dy=(e.clientY-r.top-r.height/2)*.28;
+      btn.style.transform=`translate(${dx}px,${dy}px)`;
+    },{passive:true});
+    btn.addEventListener('mouseleave',()=>{btn.style.transform=''});
   });
-  btn.addEventListener('mouseleave',()=>{btn.style.transform=''});
-});
+}
 
 /* ══════════════════════════════════════
    SIDE NAV + TOP NAV ACTIVE
