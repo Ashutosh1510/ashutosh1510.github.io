@@ -164,12 +164,21 @@ setTimeout(dismissLoader, 4000);
   const el = document.getElementById('role-rotator');
   if (!el || RM) return;
   const roles = ['GenAI Systems', 'Fraud Detection ML', 'Real-Time Pipelines', 'RAG & Vector Search', 'MLOps at Scale'];
+  if (!FINE_POINTER || window.innerWidth <= 640) {
+    el.textContent = roles[0];
+    el.dataset.final = roles[0];
+    return;
+  }
   let idx = 0;
   setInterval(() => {
-    idx = (idx + 1) % roles.length;
-    el.dataset.final = roles[idx];
-    scramble(el, 600);
-  }, 3200);
+    el.classList.add('swapping');
+    setTimeout(() => {
+      idx = (idx + 1) % roles.length;
+      el.textContent = roles[idx];
+      el.dataset.final = roles[idx];
+      el.classList.remove('swapping');
+    }, 240);
+  }, 3600);
 })();
 
 /* ══════════════════════════════════════
@@ -437,6 +446,131 @@ function createBackgroundField(canvas) {
 }
 
 createBackgroundField(document.getElementById('bg-canvas'));
+
+function createHeroOrbit(canvas) {
+  if (!canvas || !window.THREE) return;
+  if (window.innerWidth <= 1024) return;
+  const stage = canvas.parentElement || canvas;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  camera.position.set(0, 0, 6);
+
+  const group = new THREE.Group();
+  scene.add(group);
+
+  const coreGeo = new THREE.IcosahedronGeometry(0.9, 2);
+  const core = new THREE.Mesh(coreGeo, new THREE.MeshPhongMaterial({
+    color: 0x30f5c8,
+    emissive: 0x063b35,
+    shininess: 92,
+    transparent: true,
+    opacity: 0.9,
+    flatShading: true
+  }));
+  group.add(core);
+
+  const coreWire = new THREE.LineSegments(
+    new THREE.EdgesGeometry(coreGeo),
+    new THREE.LineBasicMaterial({ color: 0xeef6ff, transparent: true, opacity: 0.2 })
+  );
+  group.add(coreWire);
+
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x6aa8ff, transparent: true, opacity: 0.28 });
+  const rings = [
+    new THREE.Mesh(new THREE.TorusGeometry(1.65, 0.008, 8, 120), ringMat.clone()),
+    new THREE.Mesh(new THREE.TorusGeometry(2.18, 0.007, 8, 120), ringMat.clone()),
+    new THREE.Mesh(new THREE.TorusGeometry(2.62, 0.006, 8, 120), ringMat.clone())
+  ];
+  rings[0].rotation.x = Math.PI * 0.54;
+  rings[1].rotation.x = Math.PI * 0.66;
+  rings[1].rotation.z = Math.PI * 0.17;
+  rings[2].rotation.x = Math.PI * 0.42;
+  rings[2].rotation.z = -Math.PI * 0.28;
+  rings[2].material.color.setHex(0xff6aa5);
+  rings[2].material.opacity = 0.2;
+  rings.forEach(r => group.add(r));
+
+  const nodeMat = new THREE.MeshPhongMaterial({
+    color: 0xff6aa5,
+    emissive: 0x3b0b1f,
+    transparent: true,
+    opacity: 0.95
+  });
+  const nodePositions = [
+    [-1.6, 0.75, 0.62],
+    [1.56, -0.45, 0.34],
+    [-0.62, -1.34, -0.48],
+    [1.18, 1.16, -0.54],
+    [0.1, 1.72, 0.22]
+  ];
+  nodePositions.forEach((pos, i) => {
+    const mat = nodeMat.clone();
+    if (i % 2) mat.color.setHex(0x30f5c8);
+    const node = new THREE.Mesh(new THREE.SphereGeometry(i === 4 ? 0.085 : 0.065, 18, 18), mat);
+    node.position.set(pos[0], pos[1], pos[2]);
+    group.add(node);
+  });
+
+  const linePositions = [];
+  nodePositions.forEach(pos => linePositions.push(0, 0, 0, pos[0], pos[1], pos[2]));
+  const lines = new THREE.LineSegments(
+    new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3)),
+    new THREE.LineBasicMaterial({ color: 0x30f5c8, transparent: true, opacity: 0.16 })
+  );
+  group.add(lines);
+
+  scene.add(new THREE.AmbientLight(0x8fdcff, 0.48));
+  const key = new THREE.PointLight(0x30f5c8, 1.4, 10);
+  key.position.set(2.8, 2.4, 3.4);
+  scene.add(key);
+  const fill = new THREE.PointLight(0xff6aa5, 0.9, 9);
+  fill.position.set(-3, -1.8, 2.5);
+  scene.add(fill);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+  renderer.setClearColor(0x000000, 0);
+
+  function resize() {
+    const w = canvas.clientWidth || stage.clientWidth || 420;
+    const h = canvas.clientHeight || stage.clientHeight || w;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage);
+  window.addEventListener('resize', resize, { passive: true });
+
+  let tx = 0, ty = 0;
+  stage.addEventListener('pointermove', e => {
+    const r = stage.getBoundingClientRect();
+    tx = ((e.clientX - r.left) / (r.width || 1) - 0.5) * 0.35;
+    ty = ((e.clientY - r.top) / (r.height || 1) - 0.5) * 0.25;
+  }, { passive: true });
+
+  let active = true;
+  visibilityGuard(stage, v => { active = v; });
+
+  function render(t = 0) {
+    if (!RM) requestAnimationFrame(render);
+    if (!active) return;
+    const time = t * 0.001;
+    group.rotation.y = time * 0.22 + tx;
+    group.rotation.x = -0.18 + ty;
+    core.rotation.y = time * 0.5;
+    core.rotation.x = time * 0.2;
+    coreWire.rotation.copy(core.rotation);
+    rings[0].rotation.z = time * 0.18;
+    rings[1].rotation.z = Math.PI * 0.17 - time * 0.12;
+    rings[2].rotation.z = -Math.PI * 0.28 + time * 0.09;
+    renderer.render(scene, camera);
+  }
+  if (RM) render(0);
+  else requestAnimationFrame(render);
+}
+
+createHeroOrbit(document.getElementById('hero-orbit'));
 
 // — Hero ColorBends: warm pink/violet/teal, low opacity via CSS
 createColorBends(document.getElementById('cb-canvas'), {
