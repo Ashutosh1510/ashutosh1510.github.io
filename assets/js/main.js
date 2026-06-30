@@ -445,132 +445,250 @@ function createBackgroundField(canvas) {
   render();
 }
 
-createBackgroundField(document.getElementById('bg-canvas'));
-
-function createHeroOrbit(canvas) {
+function createImmersiveScene(canvas) {
   if (!canvas || !window.THREE) return;
-  if (window.innerWidth <= 1024) return;
-  const stage = canvas.parentElement || canvas;
+
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-  camera.position.set(0, 0, 6);
+  scene.fog = new THREE.FogExp2(0x02030a, 0.055);
 
-  const group = new THREE.Group();
-  scene.add(group);
+  const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 80);
+  camera.position.set(0, 0.4, 9);
 
-  const coreGeo = new THREE.IcosahedronGeometry(0.9, 2);
-  const core = new THREE.Mesh(coreGeo, new THREE.MeshPhongMaterial({
-    color: 0x30f5c8,
-    emissive: 0x063b35,
-    shininess: 92,
-    transparent: true,
-    opacity: 0.9,
-    flatShading: true
-  }));
-  group.add(core);
+  const world = new THREE.Group();
+  scene.add(world);
 
-  const coreWire = new THREE.LineSegments(
-    new THREE.EdgesGeometry(coreGeo),
-    new THREE.LineBasicMaterial({ color: 0xeef6ff, transparent: true, opacity: 0.2 })
-  );
-  group.add(coreWire);
-
-  const ringMat = new THREE.MeshBasicMaterial({ color: 0x6aa8ff, transparent: true, opacity: 0.28 });
-  const rings = [
-    new THREE.Mesh(new THREE.TorusGeometry(1.65, 0.008, 8, 120), ringMat.clone()),
-    new THREE.Mesh(new THREE.TorusGeometry(2.18, 0.007, 8, 120), ringMat.clone()),
-    new THREE.Mesh(new THREE.TorusGeometry(2.62, 0.006, 8, 120), ringMat.clone())
-  ];
-  rings[0].rotation.x = Math.PI * 0.54;
-  rings[1].rotation.x = Math.PI * 0.66;
-  rings[1].rotation.z = Math.PI * 0.17;
-  rings[2].rotation.x = Math.PI * 0.42;
-  rings[2].rotation.z = -Math.PI * 0.28;
-  rings[2].material.color.setHex(0xff6aa5);
-  rings[2].material.opacity = 0.2;
-  rings.forEach(r => group.add(r));
-
-  const nodeMat = new THREE.MeshPhongMaterial({
-    color: 0xff6aa5,
-    emissive: 0x3b0b1f,
-    transparent: true,
-    opacity: 0.95
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    alpha: true,
+    preserveDrawingBuffer: true,
+    powerPreference: 'high-performance'
   });
-  const nodePositions = [
-    [-1.6, 0.75, 0.62],
-    [1.56, -0.45, 0.34],
-    [-0.62, -1.34, -0.48],
-    [1.18, 1.16, -0.54],
-    [0.1, 1.72, 0.22]
-  ];
-  nodePositions.forEach((pos, i) => {
-    const mat = nodeMat.clone();
-    if (i % 2) mat.color.setHex(0x30f5c8);
-    const node = new THREE.Mesh(new THREE.SphereGeometry(i === 4 ? 0.085 : 0.065, 18, 18), mat);
-    node.position.set(pos[0], pos[1], pos[2]);
-    group.add(node);
-  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.25 : 1.8));
+  renderer.setClearColor(0x02030a, 0);
 
-  const linePositions = [];
-  nodePositions.forEach(pos => linePositions.push(0, 0, 0, pos[0], pos[1], pos[2]));
-  const lines = new THREE.LineSegments(
-    new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3)),
-    new THREE.LineBasicMaterial({ color: 0x30f5c8, transparent: true, opacity: 0.16 })
-  );
-  group.add(lines);
-
-  scene.add(new THREE.AmbientLight(0x8fdcff, 0.48));
-  const key = new THREE.PointLight(0x30f5c8, 1.4, 10);
-  key.position.set(2.8, 2.4, 3.4);
+  scene.add(new THREE.AmbientLight(0x9bdcff, 0.42));
+  const key = new THREE.PointLight(0x5fffe0, 1.55, 20);
+  key.position.set(4, 4, 5);
   scene.add(key);
-  const fill = new THREE.PointLight(0xff6aa5, 0.9, 9);
-  fill.position.set(-3, -1.8, 2.5);
-  scene.add(fill);
+  const magenta = new THREE.PointLight(0xff5ea8, 1.05, 16);
+  magenta.position.set(-4, -2, 4);
+  scene.add(magenta);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
-  renderer.setClearColor(0x000000, 0);
+  const lab = new THREE.Group();
+  world.add(lab);
+
+  const panelMat = new THREE.MeshPhongMaterial({
+    color: 0x0d1a31,
+    emissive: 0x061423,
+    shininess: 78,
+    transparent: true,
+    opacity: 0.34,
+    side: THREE.DoubleSide
+  });
+  const panelEdgeMat = new THREE.LineBasicMaterial({ color: 0x5fffe0, transparent: true, opacity: 0.28 });
+  const panels = [];
+  [
+    [-0.95, 0.56, 0.18, -0.15, 0.44, 1.45, 0.9, 0x5fffe0],
+    [0.84, 0.24, -0.36, 0.08, -0.36, 1.18, 0.72, 0x74a7ff],
+    [0.08, -0.82, 0.26, -0.22, 0.12, 1.8, 0.58, 0xff5ea8],
+    [-0.2, 1.22, -0.62, 0.22, -0.18, 1.34, 0.52, 0xd8f36a]
+  ].forEach(([x, y, z, rx, ry, w, h, color]) => {
+    const mat = panelMat.clone();
+    mat.color.setHex(color);
+    mat.emissive.setHex(color);
+    mat.emissiveIntensity = 0.04;
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+    panel.position.set(x, y, z);
+    panel.rotation.set(rx, ry, 0);
+    panel.userData.base = panel.position.clone();
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(panel.geometry), panelEdgeMat.clone());
+    panel.add(edge);
+    lab.add(panel);
+    panels.push(panel);
+  });
+
+  const cubeGroup = new THREE.Group();
+  lab.add(cubeGroup);
+  const cubeGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16);
+  const cubes = [];
+  for (let i = 0; i < 28; i++) {
+    const mat = new THREE.MeshPhongMaterial({
+      color: i % 3 === 0 ? 0xff5ea8 : i % 3 === 1 ? 0x74a7ff : 0x5fffe0,
+      emissive: i % 3 === 0 ? 0x2e0a1c : 0x082923,
+      transparent: true,
+      opacity: 0.72,
+      shininess: 60
+    });
+    const cube = new THREE.Mesh(cubeGeo, mat);
+    const col = i % 7;
+    const row = Math.floor(i / 7);
+    cube.position.set((col - 3) * 0.28, (row - 1.5) * 0.28, (Math.random() - 0.5) * 0.72);
+    cube.rotation.set(Math.random() * 0.6, Math.random() * 0.8, Math.random() * 0.4);
+    cube.userData.base = cube.position.clone();
+    cubeGroup.add(cube);
+    cubes.push(cube);
+  }
+
+  const dataNodes = new THREE.Group();
+  world.add(dataNodes);
+  const nodeData = [
+    { label: 'RAG', color: 0x5fffe0, pos: [-2.4, 0.72, 0.6] },
+    { label: 'MLOps', color: 0x74a7ff, pos: [2.05, -0.92, -0.2] },
+    { label: 'Vision', color: 0xff5ea8, pos: [1.9, 1.15, -0.45] },
+    { label: 'Streaming', color: 0xd8f36a, pos: [-0.65, -1.86, 0.42] },
+    { label: 'Risk', color: 0xff5ea8, pos: [0.4, 1.92, 0.22] }
+  ];
+  const dataNodeMeshes = nodeData.map((node, i) => {
+    const mat = new THREE.MeshPhongMaterial({
+      color: node.color,
+      emissive: node.color,
+      emissiveIntensity: 0.22,
+      transparent: true,
+      opacity: 0.9
+    });
+    const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(i === 0 ? 0.11 : 0.085, 0), mat);
+    mesh.position.set(node.pos[0], node.pos[1], node.pos[2]);
+    mesh.userData.base = mesh.position.clone();
+    dataNodes.add(mesh);
+    return mesh;
+  });
+
+  const beamPositions = [];
+  nodeData.forEach(node => beamPositions.push(0, 0, 0, node.pos[0], node.pos[1], node.pos[2]));
+  const beams = new THREE.LineSegments(
+    new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(beamPositions, 3)),
+    new THREE.LineBasicMaterial({ color: 0x5fffe0, transparent: true, opacity: 0.16 })
+  );
+  world.add(beams);
+
+  const grid = new THREE.GridHelper(12, 28, 0x5fffe0, 0x203452);
+  grid.position.y = -2.7;
+  grid.rotation.x = Math.PI * 0.03;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.13;
+  world.add(grid);
+
+  const count = window.innerWidth < 700 ? 280 : 820;
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 18;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 11;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 12;
+  }
+  const fieldGeo = new THREE.BufferGeometry();
+  fieldGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const field = new THREE.Points(fieldGeo, new THREE.PointsMaterial({
+    color: 0x5fffe0,
+    size: window.innerWidth < 700 ? 0.026 : 0.018,
+    transparent: true,
+    opacity: window.innerWidth < 700 ? 0.32 : 0.46,
+    depthWrite: false
+  }));
+  scene.add(field);
+
+  const sectionIds = ['s-hero', 's-about', 's-exp', 's-proj', 's-edu', 's-contact'];
+  const targets = [
+    { camera: [0, 0.4, 9], world: [2.6, 0, 0], scale: 1, rot: 0 },
+    { camera: [-0.8, 0.35, 8.2], world: [3.4, 0.2, -0.2], scale: 0.88, rot: 0.6 },
+    { camera: [0.7, 0.1, 8.6], world: [-3.1, -0.1, -0.3], scale: 0.92, rot: 1.45 },
+    { camera: [0, 0.15, 7.2], world: [0, 0, 0], scale: 1.1, rot: 2.35 },
+    { camera: [-0.5, 0.35, 8.8], world: [3, -0.1, -0.4], scale: 0.84, rot: 3.25 },
+    { camera: [0, 0.4, 9.5], world: [0, 0.15, -0.6], scale: 0.95, rot: 4.1 }
+  ];
+  let targetIndex = 0;
+  function updateTarget() {
+    const center = window.scrollY + window.innerHeight * 0.48;
+    let best = 0;
+    let bestDistance = Infinity;
+    sectionIds.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const top = el.offsetTop;
+      const mid = top + el.offsetHeight * 0.5;
+      const d = Math.abs(center - mid);
+      if (d < bestDistance) {
+        bestDistance = d;
+        best = i;
+      }
+    });
+    targetIndex = best;
+  }
+  updateTarget();
+  window.addEventListener('scroll', updateTarget, { passive: true });
+
+  let pointerX = 0;
+  let pointerY = 0;
+  window.addEventListener('pointermove', e => {
+    pointerX = (e.clientX / window.innerWidth - 0.5) * 2;
+    pointerY = (e.clientY / window.innerHeight - 0.5) * 2;
+  }, { passive: true });
 
   function resize() {
-    const w = canvas.clientWidth || stage.clientWidth || 420;
-    const h = canvas.clientHeight || stage.clientHeight || w;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
   resize();
-  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage);
   window.addEventListener('resize', resize, { passive: true });
 
-  let tx = 0, ty = 0;
-  stage.addEventListener('pointermove', e => {
-    const r = stage.getBoundingClientRect();
-    tx = ((e.clientX - r.left) / (r.width || 1) - 0.5) * 0.35;
-    ty = ((e.clientY - r.top) / (r.height || 1) - 0.5) * 0.25;
-  }, { passive: true });
-
   let active = true;
-  visibilityGuard(stage, v => { active = v; });
+  document.addEventListener('visibilitychange', () => { active = !document.hidden; });
 
+  const targetWorld = new THREE.Vector3();
+  const targetCamera = new THREE.Vector3();
   function render(t = 0) {
     if (!RM) requestAnimationFrame(render);
     if (!active) return;
     const time = t * 0.001;
-    group.rotation.y = time * 0.22 + tx;
-    group.rotation.x = -0.18 + ty;
-    core.rotation.y = time * 0.5;
-    core.rotation.x = time * 0.2;
-    coreWire.rotation.copy(core.rotation);
-    rings[0].rotation.z = time * 0.18;
-    rings[1].rotation.z = Math.PI * 0.17 - time * 0.12;
-    rings[2].rotation.z = -Math.PI * 0.28 + time * 0.09;
+    const target = targets[targetIndex];
+
+    targetCamera.set(
+      target.camera[0] + pointerX * 0.24,
+      target.camera[1] - pointerY * 0.16,
+      target.camera[2]
+    );
+    camera.position.lerp(targetCamera, 0.045);
+    camera.lookAt(0, 0, 0);
+
+    targetWorld.set(target.world[0], target.world[1], target.world[2]);
+    world.position.lerp(targetWorld, 0.05);
+    world.scale.lerp(new THREE.Vector3(target.scale, target.scale, target.scale), 0.045);
+    world.rotation.y += ((target.rot + time * 0.12) - world.rotation.y) * 0.025;
+    world.rotation.x += ((-0.08 + pointerY * 0.08) - world.rotation.x) * 0.035;
+
+    lab.rotation.y = Math.sin(time * 0.18) * 0.16 + pointerX * 0.08;
+    lab.rotation.x = -0.08 + Math.sin(time * 0.14) * 0.05 - pointerY * 0.04;
+    panels.forEach((panel, i) => {
+      const base = panel.userData.base;
+      panel.position.y = base.y + Math.sin(time * 0.7 + i) * 0.05;
+      panel.material.opacity = 0.26 + Math.sin(time * 1.1 + i) * 0.045 + (targetIndex === 3 ? 0.04 : 0);
+      panel.rotation.z = Math.sin(time * 0.28 + i) * 0.045;
+    });
+    cubes.forEach((cube, i) => {
+      const base = cube.userData.base;
+      cube.position.y = base.y + Math.sin(time * 1.5 + i * 0.47) * 0.06;
+      cube.position.z = base.z + Math.cos(time * 1.1 + i * 0.31) * 0.08;
+      cube.rotation.x += 0.004 + (i % 5) * 0.0003;
+      cube.rotation.y += 0.006 + (i % 7) * 0.0002;
+    });
+    dataNodeMeshes.forEach((node, i) => {
+      const base = node.userData.base;
+      node.position.y = base.y + Math.sin(time * 1.3 + i) * 0.08;
+      node.scale.setScalar(1 + Math.sin(time * 2.1 + i) * 0.13);
+    });
+    field.rotation.y = time * 0.025 + pointerX * 0.035;
+    field.rotation.x = -pointerY * 0.02;
+
     renderer.render(scene, camera);
   }
   if (RM) render(0);
   else requestAnimationFrame(render);
 }
 
-createHeroOrbit(document.getElementById('hero-orbit'));
+createImmersiveScene(document.getElementById('bg-canvas'));
 
 // — Hero ColorBends: warm pink/violet/teal, low opacity via CSS
 createColorBends(document.getElementById('cb-canvas'), {
